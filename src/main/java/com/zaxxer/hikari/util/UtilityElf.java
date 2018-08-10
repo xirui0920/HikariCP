@@ -36,6 +36,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 public final class UtilityElf
 {
    /**
+    * A constant for SQL Server's Snapshot isolation level
+    */
+   private static final int SQL_SERVER_SNAPSHOT_ISOLATION_LEVEL = 4096;
+
+   /**
     *
     * @return null if string is null or empty
    */
@@ -57,6 +62,21 @@ public final class UtilityElf
       catch (InterruptedException e) {
          // I said be quiet!
          currentThread().interrupt();
+      }
+   }
+
+   /**
+    * Checks whether an object is an instance of given type without throwing exception when the class is not loaded.
+    * @param obj the object to check
+    * @param className String class
+    * @return true if object is assignable from the type, false otherwise or when the class cannot be loaded
+    */
+   public static boolean safeIsAssignableFrom(Object obj, String className) {
+      try {
+         Class<?> clazz = Class.forName(className);
+         return clazz.isAssignableFrom(obj.getClass());
+      } catch (ClassNotFoundException ignored) {
+         return false;
       }
    }
 
@@ -162,6 +182,7 @@ public final class UtilityElf
                case Connection.TRANSACTION_REPEATABLE_READ:
                case Connection.TRANSACTION_SERIALIZABLE:
                case Connection.TRANSACTION_NONE:
+               case SQL_SERVER_SNAPSHOT_ISOLATION_LEVEL: // a specific isolation level for SQL server only
                   return level;
                default:
                   throw new IllegalArgumentException();

@@ -6,7 +6,6 @@ dist:
 
 before_script:
   - if [[ "x$JDK" == *'x9'* ]]; then export MAVEN_SKIP_RC=true; fi
-  - if [[ "x$JDK" != *'x9'* ]]; then export COVERALLS=coveralls:report; fi
 
 script:
   - export JDK8_HOME=$(jdk_switcher home oraclejdk8)
@@ -32,5 +31,7 @@ matrix:
 install: /bin/true
 
 script:
-  - mvn package -Dskip.unit.tests=true -Dmaven.javadoc.skip=true -V -B
-  - mvn test $COVERALLS -V -P coverage
+  - mvn package -Dmaven.javadoc.skip=true -V -B
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

@@ -17,53 +17,61 @@
 package com.zaxxer.hikari.metrics.prometheus;
 
 import com.zaxxer.hikari.metrics.IMetricsTracker;
-import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Summary;
+
 import java.util.concurrent.TimeUnit;
 
 class PrometheusMetricsTracker implements IMetricsTracker
 {
-   private static final Counter CONNECTION_TIMEOUT_COUNTER = Counter.build()
+   private final Counter CONNECTION_TIMEOUT_COUNTER = Counter.build()
       .name("hikaricp_connection_timeout_total")
       .labelNames("pool")
       .help("Connection timeout total count")
-      .register();
-   private static final Summary ELAPSED_ACQUIRED_SUMMARY = Summary.build()
-      .name("hikaricp_connection_acquired_nanos")
-      .labelNames("pool")
-      .help("Connection acquired time (ns)")
-      .register();
-   private static final Summary ELAPSED_BORROWED_SUMMARY = Summary.build()
-      .name("hikaricp_connection_usage_millis")
-      .labelNames("pool")
-      .help("Connection usage (ms)")
-      .register();
-   private static final Summary ELAPSED_CREATION_SUMMARY = Summary.build()
-      .name("hikaricp_connection_creation_millis")
-      .labelNames("pool")
-      .help("Connection creation (ms)")
-      .register();
+      .create();
+
+   private final Summary ELAPSED_ACQUIRED_SUMMARY =
+      registerSummary("hikaricp_connection_acquired_nanos", "Connection acquired time (ns)");
+
+   private final Summary ELAPSED_BORROWED_SUMMARY =
+      registerSummary("hikaricp_connection_usage_millis", "Connection usage (ms)");
+
+   private final Summary ELAPSED_CREATION_SUMMARY =
+      registerSummary("hikaricp_connection_creation_millis", "Connection creation (ms)");
 
    private final Counter.Child connectionTimeoutCounterChild;
+
+   private Summary registerSummary(String name, String help) {
+      return Summary.build()
+         .name(name)
+         .labelNames("pool")
+         .help(help)
+         .quantile(0.5, 0.05)
+         .quantile(0.95, 0.01)
+         .quantile(0.99, 0.001)
+         .maxAgeSeconds(TimeUnit.MINUTES.toSeconds(5))
+         .ageBuckets(5)
+         .create();
+   }
+
    private final Summary.Child elapsedAcquiredSummaryChild;
    private final Summary.Child elapsedBorrowedSummaryChild;
    private final Summary.Child elapsedCreationSummaryChild;
-   private final Collector collector;
 
-   PrometheusMetricsTracker(String poolName, Collector collector) {
-      this.collector = collector;
+   PrometheusMetricsTracker(String poolName, CollectorRegistry collectorRegistry) {
+      registerMetrics(collectorRegistry);
       this.connectionTimeoutCounterChild = CONNECTION_TIMEOUT_COUNTER.labels(poolName);
       this.elapsedAcquiredSummaryChild = ELAPSED_ACQUIRED_SUMMARY.labels(poolName);
       this.elapsedBorrowedSummaryChild = ELAPSED_BORROWED_SUMMARY.labels(poolName);
       this.elapsedCreationSummaryChild = ELAPSED_CREATION_SUMMARY.labels(poolName);
    }
 
-   @Override
-   public void close()
-   {
-      CollectorRegistry.defaultRegistry.unregister(collector);
+   private void registerMetrics(CollectorRegistry collectorRegistry){
+      CONNECTION_TIMEOUT_COUNTER.register(collectorRegistry);
+      ELAPSED_ACQUIRED_SUMMARY.register(collectorRegistry);
+      ELAPSED_BORROWED_SUMMARY.register(collectorRegistry);
+      ELAPSED_CREATION_SUMMARY.register(collectorRegistry);
    }
 
    @Override

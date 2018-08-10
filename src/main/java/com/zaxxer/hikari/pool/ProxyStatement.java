@@ -62,11 +62,14 @@ public abstract class ProxyStatement implements Statement
    @Override
    public final void close() throws SQLException
    {
-      if (isClosed) {
-         return;
+      synchronized (this) {
+         if (isClosed) {
+            return;
+         }
+
+         isClosed = true;
       }
 
-      isClosed = true;
       connection.untrackStatement(delegate);
 
       try {
@@ -209,6 +212,22 @@ public abstract class ProxyStatement implements Statement
    @Override
    public ResultSet getResultSet() throws SQLException {
       final ResultSet resultSet = delegate.getResultSet();
+      if (resultSet != null) {
+         if (proxyResultSet == null || ((ProxyResultSet) proxyResultSet).delegate != resultSet) {
+            proxyResultSet = ProxyFactory.getProxyResultSet(connection, this, resultSet);
+         }
+      }
+      else {
+         proxyResultSet = null;
+      }
+      return proxyResultSet;
+   }
+
+   /** {@inheritDoc} */
+   @Override
+   public ResultSet getGeneratedKeys() throws SQLException
+   {
+      ResultSet resultSet = delegate.getGeneratedKeys();
       if (resultSet != null) {
          if (proxyResultSet == null || ((ProxyResultSet) proxyResultSet).delegate != resultSet) {
             proxyResultSet = ProxyFactory.getProxyResultSet(connection, this, resultSet);

@@ -8,26 +8,28 @@
       <artifact.classifier />
 
       <felix.bundle.plugin.version>3.3.0</felix.bundle.plugin.version>
-      <felix.version>5.6.2</felix.version>
+      <felix.version>5.6.8</felix.version>
       <hibernate.version>5.2.10.Final</hibernate.version>
       <javassist.version>3.22.0-CR1</javassist.version>
       <jndi.version>0.11.4.1</jndi.version>
       <maven.release.version>2.5.3</maven.release.version>
-      <metrics.version>3.2.2</metrics.version>
-      <simpleclient.version>0.0.22</simpleclient.version>
-      <mockito.version>2.8.9</mockito.version>
+      <metrics.version>3.2.4</metrics.version>
+      <micrometer.version>1.0.0</micrometer.version>
+      <simpleclient.version>0.0.26</simpleclient.version>
+      <mockito.version>2.10.0</mockito.version>
       <pax.exam.version>4.11.0</pax.exam.version>
       <pax.url.version>2.5.2</pax.url.version>
+      <postgresql.version>42.1.4</postgresql.version>
       <slf4j.version>1.7.25</slf4j.version>
-      <log4j.version>2.8.2</log4j.version>
-      <commons.csv.version>1.4</commons.csv.version>
-      <h2.version>1.4.195</h2.version>
+      <log4j.version>2.9.0</log4j.version>
+      <commons.csv.version>1.5</commons.csv.version>
+      <h2.version>1.4.196</h2.version>
       <junit.version>4.12</junit.version>
    </properties>
 
    <groupId>com.zaxxer</groupId>
    <artifactId>HikariCP</artifactId>
-   <version>2.6.4-SNAPSHOT</version>
+   <version>3.2.1-SNAPSHOT</version>
    <packaging>bundle</packaging>
 
    <name>HikariCP</name>
@@ -124,6 +126,18 @@
          <artifactId>javassist</artifactId>
          <version>${javassist.version}</version>
          <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>io.micrometer</groupId>
+         <artifactId>micrometer-core</artifactId>
+         <version>${micrometer.version}</version>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.postgresql</groupId>
+         <artifactId>postgresql</artifactId>
+         <version>${postgresql.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.hibernate</groupId>
@@ -255,7 +269,6 @@
             <executions>
                <!-- Prepares the property pointing to the JaCoCo runtime agent which is passed as VM argument when Maven the Surefire plugin is executed. -->
                <execution>
-                  <id>pre-unit-test</id>
                   <goals>
                      <goal>prepare-agent</goal>
                   </goals>
@@ -273,7 +286,7 @@
                </execution>
                <!-- Ensures that the code coverage report for unit tests is created after unit tests have been run. -->
                <execution>
-                  <id>post-unit-test</id>
+                  <id>report</id>
                   <phase>test</phase>
                   <goals>
                      <goal>report</goal>
@@ -281,8 +294,6 @@
                   <configuration>
                      <!-- Sets the path to the file which contains the execution data. -->
                      <dataFile>${project.build.directory}/coverage-reports/jacoco.exec</dataFile>
-                     <!-- Sets the output directory for the code coverage report. -->
-                     <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
                      <excludes>
                         <exclude>**/com/zaxxer/hikari/pool/HikariProxy*</exclude>
                         <exclude>**/com/zaxxer/hikari/metrics/**</exclude>
@@ -300,6 +311,7 @@
             <configuration>
                <classifier>${artifact.classifier}</classifier>
                <instructions>
+                  <Automatic-Module-Name>com.zaxxer.hikari</Automatic-Module-Name>
                   <Bundle-Name>HikariCP</Bundle-Name>
                   <Export-Package>
                      com.zaxxer.hikari,
@@ -321,6 +333,7 @@
                      javax.sql.rowset.spi,
                      com.codahale.metrics;resolution:=optional,
                      com.codahale.metrics.health;resolution:=optional,
+                     io.micrometer.core.instrument;resolution:=optional,
                      org.slf4j;version="[1.6,2)",
                      org.hibernate;resolution:=optional,
                      org.hibernate.cfg;resolution:=optional,
@@ -348,11 +361,12 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-compiler-plugin</artifactId>
-               <version>3.6.1</version>
+               <version>3.7.0</version>
                <extensions>true</extensions>
                <configuration>
                   <source>1.8</source>
                   <target>1.8</target>
+                  <compilerArgs>-Xlint</compilerArgs>
                </configuration>
             </plugin>
 
@@ -438,29 +452,6 @@
             <sureFireForks9>true</sureFireForks9>
             <artifact.classifier>java9</artifact.classifier>
          </properties>
-      </profile>
-
-      <profile>
-         <id>coverage</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.eluder.coveralls</groupId>
-                  <artifactId>coveralls-maven-plugin</artifactId>
-                  <version>4.3.0</version>
-                  <executions>
-                     <execution>
-                        <id>coveralls</id>
-                        <phase>verify</phase>
-                        <goals>
-                           <goal>jacoco</goal>
-                        </goals>
-                        <inherited>false</inherited>
-                     </execution>
-                  </executions>
-               </plugin>
-            </plugins>
-         </build>
       </profile>
 
       <profile>

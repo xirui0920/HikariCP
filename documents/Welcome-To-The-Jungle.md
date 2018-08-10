@@ -27,7 +27,7 @@ The constraints are simple:
  * Connection establishment takes 150ms.
  * Query execution takes 2ms.
  * The maximum pool size is 50.
- * The minumum idle connections is 5.
+ * The minimum idle connections is 5.
 
 And the simulation is fairly simple:
  * Everything is quiet, and then ... Boom! ... 50 threads, at once, wanting a connection and to execute a query.
@@ -65,8 +65,10 @@ Where ``150`` is the connection establishment time, ``<pool>`` is one of [*hikar
 <sup>* Note that the times provided in the raw data is the number of microseconds (μs) since the start of the test. For graphing purposes, raw data for each pool was trimmed such that the first entry has 0 requests enqueued, and the last entry has all connections completed. </sup>
 
 --------------------
-#### Apache DBCP vs HikariCP
-In case you missed the *time-scale* in the graphs above, here is a properly scaled comparable; Apache DBCP on top, HikariCP on the bottom.
+### Apache DBCP vs HikariCP
+:point_right: In case you missed the *time-scale* in the graphs above, here is a properly scaled comparable.
+
+Apache DBCP on *top*, HikariCP on the *bottom*.
 
 [![](https://github.com/brettwooldridge/HikariCP/wiki/Spike-Compare.png)](https://github.com/brettwooldridge/HikariCP/wiki/Spike-Compare.png)
 
@@ -85,7 +87,7 @@ Consider this hypothetical scenario:
 There is a pool with five connections in-use, and zero idle (available) connections. Then, a new thread
 comes in requesting a connection.
 ```
-"How the the prime directive apply in this case?"  We'll answer with a question of our own:
+"How does the prime directive apply in this case?"  We'll answer with a question of our own:
 
 > If the thread is directed to create a new connection, and that connection takes 150ms to establish, what happens if one of the five in-use connections is returned to the pool?
 

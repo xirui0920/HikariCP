@@ -1,8 +1,7 @@
-<h1><img src="https://github.com/brettwooldridge/HikariCP/wiki/Hikari.png"> HikariCP<sup><sup>&nbsp;It's Faster.</sup></sup><sub><sub><sup>Hi·ka·ri [hi·ka·'lē] &#40;*Origin: Japanese*): light; ray.</sup></sub></sub></h1><br>
+<h1><img src="https://github.com/brettwooldridge/HikariCP/wiki/Hikari.png"> HikariCP<sup><sup>&nbsp;It's Faster.</sup></sup><sub><sub><sup>Hi·ka·ri [hi·ka·'lē] &#40;<i>Origin: Japanese</i>): light; ray.</sup></sub></sub></h1><br>
 
 [![][Build Status img]][Build Status]
 [![][Coverage Status img]][Coverage Status]
-[![][Dependency Status img]][Dependency Status]
 [![][license img]][license]
 [![][Maven Central img]][Maven Central]
 [![][Javadocs img]][Javadocs]
@@ -14,20 +13,12 @@ Fast, simple, reliable.  HikariCP is a "zero-overhead" production ready JDBC con
 
 ----------------------------------------------------
 
-_Java 8 maven artifact:_
+_Java 8/9 maven artifact:_
 ```xml
     <dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
-        <version>2.6.2</version>
-    </dependency>
-```
-_Java 9 Early Access maven artifact:_
-```xml
-    <dependency>
-        <groupId>com.zaxxer</groupId>
-        <artifactId>HikariCP-java9ea</artifactId>
-        <version>2.6.1</version>
+        <version>3.1.0</version>
     </dependency>
 ```
 _Java 7 maven artifact (*maintenance mode*):_
@@ -35,7 +26,7 @@ _Java 7 maven artifact (*maintenance mode*):_
     <dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP-java7</artifactId>
-        <version>2.4.12</version>
+        <version>2.4.13</version>
     </dependency>
 ```
 _Java 6 maven artifact (*maintenance mode*):_
@@ -63,8 +54,8 @@ Microbenchmarks were created to isolate and measure the overhead of pools using 
 <sup>1</sup> Versions: HikariCP 2.6.0, commons-dbcp2 2.1.1, Tomcat 8.0.24, Vibur 16.1, c3p0 0.9.5.2, Java 8u111 <br/>
 <sup>2</sup> Intel Core i7-3770 CPU @ 3.40GHz <br/>
 <sup>3</sup> Uncontended benchmark: 32 threads/32 connections, Contended benchmark: 32 threads, 16 connections <br/>
-<sup>4</sup> Apache Tomcat fails to complete the Statement benchmark when the Tomcat ``StatementFinalizer`` is used [due to excessive garbage collection times.](https://raw.githubusercontent.com/wiki/brettwooldridge/HikariCP/markdown/Tomcat-Statement-Failure.md) <br/>
-<sup>5</sup> Apache DBCP fails to complete the Statement benchmark [due to excessive garbage collection times](https://raw.githubusercontent.com/wiki/brettwooldridge/HikariCP/markdown/Dbcp2-Statement-Failure.md).
+<sup>4</sup> Apache Tomcat fails to complete the Statement benchmark when the Tomcat <i>StatementFinalizer</i> is used <a href="https://raw.githubusercontent.com/wiki/brettwooldridge/HikariCP/markdown/Tomcat-Statement-Failure.md">due to excessive garbage collection times</a><br/>
+<sup>5</sup> Apache DBCP fails to complete the Statement benchmark <a href="https://raw.githubusercontent.com/wiki/brettwooldridge/HikariCP/markdown/Dbcp2-Statement-Failure.md">due to excessive garbage collection times</a>
 </sup>
 
 ----------------------------------------------------
@@ -72,14 +63,14 @@ Microbenchmarks were created to isolate and measure the overhead of pools using 
 
 #### Spike Demand Pool Comparison
 <a href="https://github.com/brettwooldridge/HikariCP/blob/dev/documents/Welcome-To-The-Jungle.md"><img width="400" align="right" src="https://github.com/brettwooldridge/HikariCP/wiki/Spike-Hikari.png"></a>
-Anaylsis of HikariCP v2.6, in comparison to other pools, in relation to a unique "spike demand" load.
+Analysis of HikariCP v2.6, in comparison to other pools, in relation to a unique "spike demand" load.
 
 The customer's environment imposed a high cost of new connection acquisition, and a requirement for a dynamically-sized pool, but yet a need for responsiveness to request spikes.  Read about the spike demand handling [here](https://github.com/brettwooldridge/HikariCP/blob/dev/documents/Welcome-To-The-Jungle.md).
 <br/>
 <br/>
 #### You're [probably] doing it wrong.
 <a href=""><img width="200" align="right" src="https://github.com/brettwooldridge/HikariCP/wiki/Postgres_Chart.png"></a>
-AKA *"What you probably didn't know about connection pool sizing"*.  Watch a video from the Oracle Real-world Performance group, and learn about why connection pools do not need to be sized as large as they often are.  In fact, oversized connection pools have a clear and demonstrable *negative* impact on performance; a 50x difference in the case of the Oracle demonstration.  [Read on to find out.](https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing).
+AKA *"What you probably didn't know about connection pool sizing"*.  Watch a video from the Oracle Real-world Performance group, and learn about why connection pools do not need to be sized as large as they often are.  In fact, oversized connection pools have a clear and demonstrable *negative* impact on performance; a 50x difference in the case of the Oracle demonstration.  [Read on to find out](https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing).
 <br/>
 #### WIX Engineering Analysis
 <a href="http://engineering.wix.com/2015/04/28/how-does-hikaricp-compare-to-other-connection-pools/"><img width="180" align="left" src="https://github.com/brettwooldridge/HikariCP/wiki/Wix-Engineering.png"></a>
@@ -108,7 +99,7 @@ HikariCP comes with *sane* defaults that perform well in most deployments withou
 
 <sup>&#128206;</sup>&nbsp;*HikariCP uses milliseconds for all time values.*
 
-&#128680;&nbsp;HikariCP relies on accurate timers for both performance and reliability. It is *imperative* that your server is synchronized with a time-source such as an NTP server. *Especially* if your server is running within a virtual machine.  Why? [Read more here.](https://dba.stackexchange.com/questions/171002/choice-of-connection-pooling-library-for-vm-deploys/171020) *Do not rely on hypervisor settings to "synchronize" the clock of the virtual machine. Configure time-source synchronization inside the virtual machine.*   If you come asking for support on an issue that turns out to be caused by lack time synchronization, you will be taunted publicly on Twitter.
+&#128680;&nbsp;HikariCP relies on accurate timers for both performance and reliability. It is *imperative* that your server is synchronized with a time-source such as an NTP server. *Especially* if your server is running within a virtual machine.  Why? [Read more here](https://dba.stackexchange.com/a/171020). **Do not rely on hypervisor settings to "synchronize" the clock of the virtual machine. Configure time-source synchronization inside the virtual machine.**   If you come asking for support on an issue that turns out to be caused by lack time synchronization, you will be taunted publicly on Twitter.
 
 ##### Essentials
 
@@ -169,16 +160,18 @@ available, a SQLException will be thrown.  Lowest acceptable connection timeout 
 &#8986;``idleTimeout``<br/>
 This property controls the maximum amount of time that a connection is allowed to sit idle in the
 pool.  **This setting only applies when ``minimumIdle`` is defined to be less than ``maximumPoolSize``.**
-Whether a connection is retired as idle or not is subject to a maximum variation of +30
-seconds, and average variation of +15 seconds.  A connection will never be retired as idle *before*
-this timeout.  A value of 0 means that idle connections are never removed from the pool.  The minimum
-allowed value is 10000ms (10 seconds).
+Idle connections will *not* be retired once the pool reaches ``minimumIdle`` connections.  Whether a
+connection is retired as idle or not is subject to a maximum variation of +30 seconds, and average 
+variation of +15 seconds.  A connection will never be retired as idle *before* this timeout.  A value
+of 0 means that idle connections are never removed from the pool.  The minimum allowed value is 10000ms
+(10 seconds).
 *Default: 600000 (10 minutes)*
 
 &#8986;``maxLifetime``<br/>
 This property controls the maximum lifetime of a connection in the pool.  An in-use connection will
-never be retired, only when it is closed will it then be removed.  **We strongly recommend setting
-this value, and it should be at least 30 seconds less than any database or infrastructure imposed
+never be retired, only when it is closed will it then be removed.  On a connection-by-connection
+basis, minor negative attenuation is applied to avoid mass-extinction in the pool.  **We strongly recommend
+setting this value, and it should be several seconds shorter than any database or infrastructure imposed
 connection time limit.**  A value of 0 indicates no maximum lifetime (infinite lifetime), subject of
 course to the ``idleTimeout`` setting.
 *Default: 1800000 (30 minutes)*
@@ -205,13 +198,13 @@ idle and in-use connections.  Basically this value will determine the maximum nu
 actual connections to the database backend.  A reasonable value for this is best determined
 by your execution environment.  When the pool reaches this size, and no idle connections are
 available, calls to getConnection() will block for up to ``connectionTimeout`` milliseconds
-before timing out.
+before timing out.  Please read [about pool sizing](https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing).
 *Default: 10*
 
 &#128200;``metricRegistry``<br/>
 This property is only available via programmatic configuration or IoC container.  This property
 allows you to specify an instance of a *Codahale/Dropwizard* ``MetricRegistry`` to be used by the
-pool to record various metrics.  See the [Metrics](https://github.com/brettwooldridge/HikariCP/wiki/Codahale-Metrics)
+pool to record various metrics.  See the [Metrics](https://github.com/brettwooldridge/HikariCP/wiki/Dropwizard-Metrics)
 wiki page for details.
 *Default: none*
 
@@ -311,6 +304,11 @@ frameworks. When this property is specified, the ``dataSourceClassName`` propert
 DataSource-specific properties will be ignored.
 *Default: none*
 
+&#128288;``schema``<br/>
+This property sets the default *schema* for databases that support the concept of schemas.
+If this property is not specified, the default schema defined by the JDBC driver is used.
+*Default: driver default*
+
 &#10145;``threadFactory``<br/>
 This property is only available via programmatic configuration or IoC container.  This property
 allows you to set the instance of the ``java.util.concurrent.ThreadFactory`` that will be used
@@ -357,8 +355,9 @@ and will negatively impact your application performance compared to driver-provi
 
 Like Statement caching, most major database vendors support statement logging through
 properties of their own driver.  This includes Oracle, MySQL, Derby, MSSQL, and others.  Some
-even support slow query logging.  For those few databases that do not support it, [log4jdbc](https://github.com/arthurblake/log4jdbc) or [jdbcdslog-exp](https://code.google.com/p/jdbcdslog-exp/) are
-good options.
+even support slow query logging.  For those few databases that do not support it, several options are available.
+We have received [a report that p6spy works well](https://github.com/brettwooldridge/HikariCP/issues/57#issuecomment-354647631),
+and also note the availability of [log4jdbc](https://github.com/arthurblake/log4jdbc) and [jdbcdslog-exp](https://code.google.com/p/jdbcdslog-exp/).
 
 ----------------------------------------------------
 
@@ -376,7 +375,7 @@ config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
 HikariDataSource ds = new HikariDataSource(config);
 ```
-&nbsp;<sup><sup>1</sup> MySQL-specific example, do not copy verbatim.</sup>
+&nbsp;<sup><sup>1</sup> MySQL-specific example, DO NOT COPY VERBATIM.</sup>
 
 or directly instantiate a ``HikariDataSource`` like so:
 ```java
@@ -418,27 +417,30 @@ There is also a System property available, ``hikaricp.configurationFile``, that 
 location of a properties file.  If you intend to use this option, construct a ``HikariConfig`` or ``HikariDataSource``
 instance using the default constructor and the properties file will be loaded.
 
+### Performance Tips
+[MySQL Performance Tips](https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration)
+
 ### Popular DataSource Class Names
 
 We recommended using ``dataSourceClassName`` instead of ``jdbcUrl``, but either is acceptable.  We'll say that again, *either is acceptable*.
 
 &#9888;&nbsp;*Note: Spring Boot auto-configuration users, you need to use ``jdbcUrl``-based configuration.*
 
-&#9888;&nbsp;MySQL and MariaDB DataSources are known to be broken with respect to network timeout support. Use ``jdbcUrl`` configuration instead.
+&#9888;&nbsp;The MySQL DataSource is known to be broken with respect to network timeout support. Use ``jdbcUrl`` configuration instead.
 
 Here is a list of JDBC *DataSource* classes for popular databases:
 
 | Database         | Driver       | *DataSource* class |
 |:---------------- |:------------ |:-------------------|
 | Apache Derby     | Derby        | org.apache.derby.jdbc.ClientDataSource |
-| Firebird         | Jaybird      | org.firebirdsql.pool.FBSimpleDataSource |
+| Firebird         | Jaybird      | org.firebirdsql.ds.FBSimpleDataSource |
 | H2               | H2           | org.h2.jdbcx.JdbcDataSource |
 | HSQLDB           | HSQLDB       | org.hsqldb.jdbc.JDBCDataSource |
 | IBM DB2          | IBM JCC      | com.ibm.db2.jcc.DB2SimpleDataSource |
 | IBM Informix     | IBM Informix | com.informix.jdbcx.IfxDataSource |
 | MS SQL Server    | Microsoft    | com.microsoft.sqlserver.jdbc.SQLServerDataSource |
 | ~~MySQL~~        | Connector/J  | ~~com.mysql.jdbc.jdbc2.optional.MysqlDataSource~~ |
-| ~~MySQL/MariaDB~~ | MariaDB     | ~~org.mariadb.jdbc.MySQLDataSource~~ |
+| MariaDB          | MariaDB      | org.mariadb.jdbc.MariaDbDataSource |
 | Oracle           | Oracle       | oracle.jdbc.pool.OracleDataSource |
 | OrientDB         | OrientDB     | com.orientechnologies.orient.jdbc.OrientDataSource |
 | PostgreSQL       | pgjdbc-ng    | com.impossibl.postgres.jdbc.PGDataSource |
@@ -483,9 +485,13 @@ Don't forget the [Wiki](https://github.com/brettwooldridge/HikariCP/wiki) for ad
  &#8658; slf4j library<br/>
 
 ### Sponsors
+High-performance projects can never have too many tools!  We would like to thank the following companies:
+
+Thanks to [ej-technologies](https://www.ej-technologies.com) for their excellent all-in-one profiler, [JProfiler](https://www.ej-technologies.com/products/jprofiler/overview.html).
 
 YourKit supports open source projects with its full-featured Java Profiler.  Click the YourKit logo below to learn more.<br/>
 [![](https://github.com/brettwooldridge/HikariCP/wiki/yklogo.png)](http://www.yourkit.com/java/profiler/index.jsp)<br/>
+
 
 ### Contributions
 
@@ -494,11 +500,8 @@ Please perform changes and submit pull requests from the ``dev`` branch instead 
 [Build Status]:https://travis-ci.org/brettwooldridge/HikariCP
 [Build Status img]:https://travis-ci.org/brettwooldridge/HikariCP.svg?branch=dev
 
-[Coverage Status]:https://coveralls.io/r/brettwooldridge/HikariCP?branch=dev
-[Coverage Status img]:https://coveralls.io/repos/brettwooldridge/HikariCP/badge.svg?branch=dev
-
-[Dependency Status]:https://www.versioneye.com/user/projects/551ce51c3661f1bee50004e0
-[Dependency Status img]:https://www.versioneye.com/user/projects/551ce51c3661f1bee50004e0/badge.svg?style=flat
+[Coverage Status]:https://codecov.io/gh/brettwooldridge/HikariCP
+[Coverage Status img]:https://codecov.io/gh/brettwooldridge/HikariCP/branch/dev/graph/badge.svg
 
 [license]:LICENSE
 [license img]:https://img.shields.io/badge/license-Apache%202-blue.svg

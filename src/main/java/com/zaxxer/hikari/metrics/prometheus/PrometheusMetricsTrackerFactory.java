@@ -19,7 +19,7 @@ package com.zaxxer.hikari.metrics.prometheus;
 import com.zaxxer.hikari.metrics.IMetricsTracker;
 import com.zaxxer.hikari.metrics.MetricsTrackerFactory;
 import com.zaxxer.hikari.metrics.PoolStats;
-import io.prometheus.client.Collector;
+import io.prometheus.client.CollectorRegistry;
 
 /**
  * <pre>{@code
@@ -27,11 +27,41 @@ import io.prometheus.client.Collector;
  * config.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
  * }</pre>
  */
-public class PrometheusMetricsTrackerFactory implements MetricsTrackerFactory
-{
+public class PrometheusMetricsTrackerFactory implements MetricsTrackerFactory {
+
+   private HikariCPCollector collector;
+
+   private CollectorRegistry collectorRegistry;
+
+   /**
+    * Default Constructor. The Hikari metrics are registered to the default
+    * collector registry ({@code CollectorRegistry.defaultRegistry}).
+    */
+   public PrometheusMetricsTrackerFactory() {
+      this.collectorRegistry = CollectorRegistry.defaultRegistry;
+   }
+
+   /**
+    * Constructor that allows to pass in a {@link CollectorRegistry} to which the
+    * Hikari metrics are registered.
+    */
+   public PrometheusMetricsTrackerFactory(CollectorRegistry collectorRegistry) {
+      this.collectorRegistry = collectorRegistry;
+   }
+
    @Override
    public IMetricsTracker create(String poolName, PoolStats poolStats) {
-      Collector collector = new HikariCPCollector(poolName, poolStats).register();
-      return new PrometheusMetricsTracker(poolName, collector);
+      getCollector().add(poolName, poolStats);
+      return new PrometheusMetricsTracker(poolName, this.collectorRegistry);
+   }
+
+   /**
+    * initialize and register collector if it isn't initialized yet
+    */
+   private HikariCPCollector getCollector() {
+      if (collector == null) {
+         collector = new HikariCPCollector().register(this.collectorRegistry);
+      }
+      return collector;
    }
 }

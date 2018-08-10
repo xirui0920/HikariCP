@@ -1,10 +1,161 @@
 HikariCP Changes
 
+Changes in 3.2.0
+
+ * check connection closed condition before attempting to set network timeout to avoid spurios exceptions
+   in the log.
+
+ * updated validation failure message to include recommendation to check maxLifetime value.
+
+ * fixed 1141 do not throw SQLException when calling isClosed() or close() on a already closed unwrapped
+   Connection, as per JDBC specification.
+
+ * fixed 1137 support changing user/password at runtime for DriverDataSource-wrapped driver connections.
+
+ * fixed 1136 log loaded driver when using jdbcUrl.
+
+ * pull 1135 extract sealed pool check into independent method.
+
+ * fixed 1126 correct error in JavaDoc for HikariConfig.setInitializationFailTimeout().
+
+ * fixed 1114 removed unreachable code.
+
+Changes in 3.1.0
+
+ * Add get/setCatalog() to HikariConfigMXBean, allowing the catalog to be changed at runtime.
+   The catalog should only be changed while the pool is suspended, and after evicting existing
+   connections via HikariPoolMXBean.softEvictConnections().
+
+Changes in 3.0.0
+
+ * Removed previously deprecated methods;
+     HikariConfig.copyState()
+     HikariConfig.getScheduledExecutorService()
+     HikariConfig.setScheduledExecutorService()
+     HikariConfig.isInitializationFailFast()
+     HikariConfig.setInitializationFailFast()
+     HikariConfig.isJdbc4ConnectionTest()
+     HikariConfig.setJdbc4ConnectionTest()
+
+     HikariDataSource.copyState()
+     HikariDataSource.getScheduledExecutorService()
+     HikariDataSource.setScheduledExecutorService()
+     HikariDataSource.suspendPool()
+     HikariDataSource.resumePool()
+     HikariDataSource.shutdown()
+     HikariDataSource.isInitializationFailFast()
+     HikariDataSource.setInitializationFailFast()
+     HikariDataSource.isJdbc4ConnectionTest()
+     HikariDataSource.setJdbc4ConnectionTest()
+
+ * pull 1110 add currently configured maxConnections and minConnections to pool metrics.
+
+ * pull 1100 remove hard-coded percentiles for Micrometer metrics.
+
+ * pull 1108 maintain a strong reference to PoolStats for Micrometer gauges to prevent premature
+   garbage collection.
+
+ * pull 1098 update to Micrometer 1.0.0.
+
+Changes in 2.7.8
+
+ * fixed 1095 fix breakage caused by sealed configuration with respect to special handling for the
+   metricsRegistry and metricsTrackerFactory properties, which are allowed to be altered *once*
+   after the pool has started (even after the configuration is sealed).
+
+ * pull 1089 allowing anonymous subclasses of MetricRegistry. Changed checks for metrics libraries
+   from a class name check to the assignableFrom() API.
+
+Changes in 2.7.7
+
+ * fixed issue whereby configuration through the HikariConfigMXBean could not be altered due
+   to the sealed configuration change introduced in 2.7.5.
+
+Changes in 2.7.6
+
+ * issue 1064 fixed regression where HikariConfig.copyStateTo() propagated the "sealed" status
+   of the source configuration to the target configuration -- preventing further changes.
+
+Changes in 2.7.5
+
+ * issue 1061/pull 1062 fixed compatibility issue with requery.io caused by HikariCP's
+   proxied Statement class returning a driver-native ResultSet instance from getGeneratedKeys()
+   instead of returning a HikariCP proxied ResultSet.
+
+ * pull 1058 enable quantiles on Prometheus metrics.
+
+ * pull 1055 fixed incorrect JavaDoc for HikariConfigMXBean.getMinimumIdle() method.
+
+ * issue 1045/pull 1047 added Automatic-Module-Name to jar manifest to ensure that the Java 8
+   library plays well with the Java 9 module system.
+
+ * introduced the concept of a "sealed" configuration.  Once a pool is started, attempts to
+   alter its configuration outside of the HikariConfigMXBean will result in an IllegalStateException.
+
+Changes in 2.7.4
+
+ * pull 1026 added support for SQL Server's specific isolation level (SNAPSHOT).
+
+ * issue 926/pull 1022 HikariJNDIFactory should not throw a NamingException or else
+   cascading to other object factories cannot occur.
+
+Changes in 2.7.3
+
+ * issue 1003 added PostgreSQL SQL State 0A000 to list of unrecoverable states calling
+   for eviction.
+
+ * pull 1002 updated micrometer support due to API changes in their release candidate.
+
+Changes in 2.7.2
+
+ * issue 983 fix logic that determines how many idle connections can be removed, without
+   violating the minimumIdle contract.
+
+ * pull 987 add thread name to leak detection messages.
+
+ * issue 982 fix classloader order, try the ThreadContext classloader before other
+   classloaders.
+
+ * pull 977 log better messages when connection is evicted.
+
+ * fallback to four digit random pool suffix when SecurityManager prevents writing
+   to system properties for the purpose of JVM-wide unique pool identifiers.
+
+Changes in 2.7.1
+
+ * issue 968 Wrong label order in MicrometerMetricsTracker for the connection usage
+   metric.
+
+ * issue 967 incorrect bitwise operator value in ConcurrentBag.requite method
+   intended to cause parkNanos() to be called every 256 iterations. Thanks to @ztkmkoo
+   for finding this.
+
+Changes in 2.4.13
+
+ * backport more efficient contention handling in ConcurrentBag.requite from 2.6.x
+   branch.
+
+ * issue 955 fix possible race condition when Statements are closed on different
+   threads from which they were created.
+
+Changes in 2.7.0
+
+ * added support for micrometer metrics (currently Alpha-level support).
+
+ * issue 905 mask JDBC password in URLs
+
+ * issue 940 fix Prometheus metric collector for multiple data config
+
+ * issue 941 add support for setting a default schema
+
+ * issue 955 fix possible race condition when Statements are closed on different
+   threads from which they were created.
+
 Changes in 2.6.3
 
  * issue 878 load driver class from ThreadContext classloader if it is not found
    via the regular classloader.
-
+
 Changes in 2.6.2
 
  * issue 890 add support for Prometheus metrics and multiple HikariCP pools.

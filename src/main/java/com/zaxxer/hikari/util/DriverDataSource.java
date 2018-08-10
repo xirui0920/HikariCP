@@ -67,22 +67,27 @@ public final class DriverDataSource implements DataSource
          if (driver == null) {
             LOGGER.warn("Registered driver with driverClassName={} was not found, trying direct instantiation.", driverClassName);
             Class<?> driverClass = null;
+            ClassLoader threadContextClassLoader = Thread.currentThread().getContextClassLoader();
             try {
-               driverClass = this.getClass().getClassLoader().loadClass(driverClassName);
-               LOGGER.debug("Driver class found in the HikariConfig class classloader {}", this.getClass().getClassLoader());
-            } catch (ClassNotFoundException e) {
-               ClassLoader threadContextClassLoader = Thread.currentThread().getContextClassLoader();
-               if (threadContextClassLoader != null && threadContextClassLoader != this.getClass().getClassLoader()) {
+               if (threadContextClassLoader != null) {
                   try {
                      driverClass = threadContextClassLoader.loadClass(driverClassName);
-                     LOGGER.debug("Driver class found in Thread context class loader {}", threadContextClassLoader);
-                  } catch (ClassNotFoundException e1) {
-                     LOGGER.warn("Failed to load class of driverClassName {} in either of HikariConfig class classloader {} or Thread context classloader {}", driverClassName, this.getClass().getClassLoader(), threadContextClassLoader);
+                     LOGGER.debug("Driver class {} found in Thread context class loader {}", driverClassName, threadContextClassLoader);
                   }
-               } else {
-                  LOGGER.warn("Failed to load class of driverClassName {} in HikariConfig class classloader {}", driverClassName, this.getClass().getClassLoader());
+                  catch (ClassNotFoundException e) {
+                     LOGGER.debug("Driver class {} not found in Thread context class loader {}, trying classloader {}",
+                                  driverClassName, threadContextClassLoader, this.getClass().getClassLoader());
+                  }
                }
+
+               if (driverClass == null) {
+                  driverClass = this.getClass().getClassLoader().loadClass(driverClassName);
+                  LOGGER.debug("Driver class {} found in the HikariConfig class classloader {}", driverClassName, this.getClass().getClassLoader());
+               }
+            } catch (ClassNotFoundException e) {
+               LOGGER.debug("Failed to load driver class {} from HikariConfig class classloader {}", driverClassName, this.getClass().getClassLoader());
             }
+
             if (driverClass != null) {
                try {
                   driver = (Driver) driverClass.newInstance();
@@ -93,16 +98,18 @@ public final class DriverDataSource implements DataSource
          }
       }
 
+      final String sanitizedUrl = jdbcUrl.replaceAll("([?&;]password=)[^&#;]*(.*)", "$1<masked>$2");
       try {
          if (driver == null) {
             driver = DriverManager.getDriver(jdbcUrl);
+            LOGGER.debug("Loaded driver with class name {} for jdbcUrl={}", driver.getClass().getName(), sanitizedUrl);
          }
          else if (!driver.acceptsURL(jdbcUrl)) {
-            throw new RuntimeException("Driver " + driverClassName + " claims to not accept jdbcUrl, " + jdbcUrl);
+            throw new RuntimeException("Driver " + driverClassName + " claims to not accept jdbcUrl, " + sanitizedUrl);
          }
       }
       catch (SQLException e) {
-         throw new RuntimeException("Failed to get driver instance for jdbcUrl=" + jdbcUrl, e);
+         throw new RuntimeException("Failed to get driver instance for jdbcUrl=" + sanitizedUrl, e);
       }
    }
 
@@ -113,9 +120,20 @@ public final class DriverDataSource implements DataSource
    }
 
    @Override
-   public Connection getConnection(String username, String password) throws SQLException
+   public Connection getConnection(final String username, final String password) throws SQLException
    {
-      return getConnection();
+      final Properties cloned = (Properties) driverProperties.clone();
+      if (username != null) {
+         cloned.put("user", username);
+         if (cloned.containsKey("username")) {
+            cloned.put("username", username);
+         }
+      }
+      if (password != null) {
+         cloned.put("password", password);
+      }
+
+      return driver.connect(jdbcUrl, cloned);
    }
 
    @Override

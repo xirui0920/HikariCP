@@ -16,24 +16,24 @@
 
 package com.zaxxer.hikari.db;
 
-import static com.zaxxer.hikari.pool.TestElf.newHikariConfig;
-import static com.zaxxer.hikari.pool.TestElf.getPool;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.pool.HikariPool;
+import static com.zaxxer.hikari.pool.TestElf.getPool;
+import static com.zaxxer.hikari.pool.TestElf.newHikariConfig;
+import static com.zaxxer.hikari.pool.TestElf.getUnsealedConfig;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author brettw
@@ -83,16 +83,16 @@ public class BasicPoolTest
 
          HikariPool pool = getPool(ds);
 
-         ds.setIdleTimeout(3000);
+         getUnsealedConfig(ds).setIdleTimeout(3000);
 
          assertEquals("Total connections not as expected", 5, pool.getTotalConnections());
          assertEquals("Idle connections not as expected", 5, pool.getIdleConnections());
 
          try (Connection connection = ds.getConnection()) {
             Assert.assertNotNull(connection);
-   
+
             MILLISECONDS.sleep(1500);
-   
+
             assertEquals("Second total connections not as expected", 6, pool.getTotalConnections());
             assertEquals("Second idle connections not as expected", 5, pool.getIdleConnections());
          }
@@ -124,16 +124,16 @@ public class BasicPoolTest
 
          HikariPool pool = getPool(ds);
 
-         ds.setIdleTimeout(3000);
+         getUnsealedConfig(ds).setIdleTimeout(3000);
 
          assertEquals("Total connections not as expected", 50, pool.getTotalConnections());
          assertEquals("Idle connections not as expected", 50, pool.getIdleConnections());
 
          try (Connection connection = ds.getConnection()) {
             assertNotNull(connection);
-   
+
             MILLISECONDS.sleep(1500);
-   
+
             assertEquals("Second total connections not as expected", 50, pool.getTotalConnections());
             assertEquals("Second idle connections not as expected", 49, pool.getIdleConnections());
          }
